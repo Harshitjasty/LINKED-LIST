@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent a term of the polynomial
+typedef struct Term {
+    int coefficient;
+    int exponent;
+    struct Term* next;
+} Term;
+
+// Function to insert a term into the polynomial
+void insertTerm(Term** poly, int coeff, int exp) {
+    Term* newTerm = (Term*)malloc(sizeof(Term));
+    newTerm->coefficient = coeff;
+    newTerm->exponent = exp;
+    newTerm->next = NULL;
+
+    if (*poly == NULL) {
+        *poly = newTerm;
+    } else {
+        Term* current = *poly;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newTerm;
+    }
+}
+
+// Function to add two polynomials
+Term* addPolynomials(Term* poly1, Term* poly2) {
+    Term* result = NULL;
+
+    while (poly1 != NULL || poly2 != NULL) {
+        int coeff, exp;
+
+        if (poly1 == NULL || (poly2 != NULL && poly1->exponent < poly2->exponent)) {
+            coeff = poly2->coefficient;
+            exp = poly2->exponent;
+            poly2 = poly2->next;
+        } else if (poly2 == NULL || (poly1 != NULL && poly1->exponent > poly2->exponent)) {
+            coeff = poly1->coefficient;
+            exp = poly1->exponent;
+            poly1 = poly1->next;
+        } else {
+            coeff = poly1->coefficient + poly2->coefficient;
+            exp = poly1->exponent;
+            poly1 = poly1->next;
+            poly2 = poly2->next;
+        }
+
+        insertTerm(&result, coeff, exp);
+    }
+
+    return result;
+}
+
+// Function to display a polynomial
+void displayPolynomial(Term* poly) {
+    while (poly != NULL) {
+        printf("%dx^%d", poly->coefficient, poly->exponent);
+        poly = poly->next;
+        if (poly != NULL) {
+            printf(" + ");
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    Term* poly1 = NULL;
+    Term* poly2 = NULL;
+
+    int numTerms1, numTerms2;
+    printf("Enter the number of terms for the first polynomial: ");
+    scanf("%d", &numTerms1);
+
+    for (int i = 0; i < numTerms1; i++) {
+        int coeff, exp;
+        printf("Enter coefficient and exponent for term %d: ", i + 1);
+        scanf("%d %d", &coeff, &exp);
+        insertTerm(&poly1, coeff, exp);
+    }
+
+    printf("Enter the number of terms for the second polynomial: ");
+    scanf("%d", &numTerms2);
+
+    for (int i = 0; i < numTerms2; i++) {
+        int coeff, exp;
+        printf("Enter coefficient and exponent for term %d: ", i + 1);
+        scanf("%d %d", &coeff, &exp);
+        insertTerm(&poly2, coeff, exp);
+    }
+
+    printf("\nFirst polynomial: ");
+    displayPolynomial(poly1);
+    printf("Second polynomial: ");
+    displayPolynomial(poly2);
+
+    Term* result = addPolynomials(poly1, poly2);
+    printf("\nSum of the polynomials: ");
+    displayPolynomial(result);
+
+    return 0;
+}
